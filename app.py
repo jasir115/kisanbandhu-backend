@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 import joblib
 import numpy as np
@@ -14,29 +15,20 @@ def home():
 def predict():
     data = request.json
 
-    try:
-        features = np.array([[ 
-            float(data["N"]),
-            float(data["P"]),
-            float(data["K"]),
-            float(data["temperature"]),
-            float(data["humidity"]),
-            float(data["ph"]),
-            float(data["rainfall"])
-        ]])
+    features = np.array([[ 
+        float(data["N"]),
+        float(data["P"]),
+        float(data["K"]),
+        float(data["temperature"]),
+        float(data["humidity"]),
+        float(data["ph"]),
+        float(data["rainfall"])
+    ]])
 
-        prediction = model.predict(features)[0]
+    pred = model.predict(features)[0]
+    return jsonify({"success": True, "recommended_crop": pred})
 
-        return jsonify({
-            "success": True,
-            "recommended_crop": prediction
-        })
-
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        })
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
